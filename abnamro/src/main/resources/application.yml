@@ -41,9 +41,6 @@ logging:
   path : classpath:logs
 
 
-
-
-
 data:
  filefields: 
       client_information:
