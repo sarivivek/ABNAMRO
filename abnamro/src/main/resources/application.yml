@@ -66,8 +66,6 @@ data:
         endIndex: '72'
         sumRequired: true
         actionRequired: 'SUB'
-
-      
  rowlength: '303'
  csvFields : CLIENT_INFORMATION,PRODUCT_INFORMATION,TOTAL_TRANSACTION_AMOUNT
  outputFileName : Output.csv
