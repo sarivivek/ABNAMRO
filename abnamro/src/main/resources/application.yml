@@ -59,7 +59,7 @@ data:
         actionRequired: 'ADD'
       quantity_short:
         startIndex: '62'
-        endIndex: '72'
+        endIndex: '73'
         sumRequired: true
         actionRequired: 'SUB'
  rowlength: '303'
