@@ -32,18 +32,13 @@ public class DailySummaryReportServiceImpl implements DailySummaryReportService 
   private Resource resource;
 
 
-  private Map<Integer, Map<String, String>> fullData;
-  private static final String TOTAL_KEY = "Sum_Total";
+  private Map<String, Integer> fullData;
   private static final String ADDITION = "ADD";
   private static final String SUBSTRACTION = "SUB";
   private final ApplicationConfig applicationConfig;
   private final CsvCreation csvCreation;
-
-
-
-  private Integer count = 0;
-  private Integer sum;
-  private boolean isPresent;
+  private Integer value;
+  private StringBuffer key;
 
 
 
@@ -61,6 +56,7 @@ public class DailySummaryReportServiceImpl implements DailySummaryReportService 
       log.info("File loading failed ");
       throw new BussinessException("File loading failed");
     }
+    log.debug("final value " + fullData);
 
     return new InputStreamResource(csvCreation.createCsv(fullData));
   }
@@ -68,44 +64,31 @@ public class DailySummaryReportServiceImpl implements DailySummaryReportService 
 
 
   private void readData(String str) {
-    count++;
-    sum = 0;
-    Map<String, String> inner1 = new LinkedHashMap<>();
+    value = 0;
+    key = null;
     applicationConfig.getFilefields().entrySet().stream().forEach(e -> {
-
       String data = str.substring(Integer.parseInt(e.getValue().getStartIndex()),
           Integer.parseInt(e.getValue().getEndIndex())).trim().replace(" ", "");
       log.debug("Data getting parsed " + data);
       if (!e.getValue().isSumRequired()) {
-        inner1.put(e.getKey(), data);
+        if (key == null || key.length() == 0) {
+          key = new StringBuffer(data);
+        } else {
+          key = key.append(applicationConfig.getDelimeter()).append(data);
+        }
       } else if (e.getValue().isSumRequired()
           && e.getValue().getActionRequired().equals(ADDITION)) {
-        sum = sum + Integer.parseInt(data);
+        value = value + Integer.parseInt(data);
       } else if (e.getValue().isSumRequired()
           && e.getValue().getActionRequired().equals(SUBSTRACTION)) {
-        sum = sum - Integer.parseInt(data);
+        value = value - Integer.parseInt(data);
       }
     });
-    inner1.put(TOTAL_KEY, sum.toString());
-    calculateSum(inner1, count);
+
+    fullData.put(key.toString(), fullData.getOrDefault(key.toString(), 0) + value);
+
     log.debug("Data loaded till now " + fullData);
   }
 
 
-  private void calculateSum(Map<String, String> data, Integer count2) {
-    isPresent = false;
-    fullData.entrySet().stream().forEach(v -> {
-      if (v.getValue().equals(data)) {
-        Integer value = Integer.parseInt(v.getValue().get(TOTAL_KEY)) + sum;
-        v.getValue().replace(TOTAL_KEY, v.getValue().get(TOTAL_KEY), value.toString());
-        log.debug("Data getting removed " + data);
-        isPresent = true;
-      }
-    });
-
-    if (!isPresent) {
-      fullData.put(count2, data);
-
-    }
-  }
 }

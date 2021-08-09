@@ -4,9 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
@@ -16,7 +17,9 @@ import com.abnamro.codechallenge.api.BussinessException;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @Data
 @Builder
@@ -25,8 +28,7 @@ public class CsvCreation {
 
   private final ApplicationConfig applicationConfig;
 
-  public ByteArrayInputStream createCsv(Map<Integer, Map<String, String>> fullData)
-      throws IOException {
+  public ByteArrayInputStream createCsv(Map<String, Integer> fullData) throws IOException {
     // TODO Auto-generated method stub
 
     final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL)
@@ -35,12 +37,12 @@ public class CsvCreation {
     try (ByteArrayOutputStream out = new ByteArrayOutputStream();
         CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);) {
       fullData.entrySet().stream().forEach(v -> {
-        List<String> data = new ArrayList<>();
-        v.getValue().entrySet().forEach(k -> {
-          data.add(k.getValue());
-        });
+        List<String> stringList = Pattern.compile(applicationConfig.getDelimeter())
+            .splitAsStream(v.getKey()).collect(Collectors.toList());
+        log.debug("Inside  csvcreation " + stringList);
+        stringList.add(v.getValue().toString());
         try {
-          csvPrinter.printRecord(data);
+          csvPrinter.printRecord(stringList);
         } catch (IOException e) {
           // TODO Auto-generated catch block
           throw new BussinessException("fail to import data to CSV file: " + e.getMessage());
@@ -51,9 +53,5 @@ public class CsvCreation {
     } catch (IOException e) {
       throw new BussinessException("fail to import data to CSV file: " + e.getMessage());
     }
-
   }
-
-
-
 }

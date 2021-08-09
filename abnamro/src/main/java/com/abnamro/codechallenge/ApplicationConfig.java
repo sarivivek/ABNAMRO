@@ -31,6 +31,9 @@ public class ApplicationConfig {
 
   private String outputFileName;
 
+  private String delimeter;
+
+
   @Data
   @Builder
   public static class Indexes {
