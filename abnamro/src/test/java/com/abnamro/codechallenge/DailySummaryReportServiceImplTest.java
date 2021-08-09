@@ -54,7 +54,6 @@ public class DailySummaryReportServiceImplTest extends AbnamroApplicationTests {
         .withHeader(applicationConfig.getCsvFields());
     List<String> stringList = new ArrayList<>();
     InputStreamResource fileInputStream = null;
-
     try (ByteArrayOutputStream out = new ByteArrayOutputStream();
         CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);) {
       csvPrinter.printRecord(stringList);
@@ -66,5 +65,26 @@ public class DailySummaryReportServiceImplTest extends AbnamroApplicationTests {
     this.mockMvc.perform(get("/abnamro/getDailyReport")).andExpect(status().isOk());
 
   }
+
+
+  @Test
+  public void testError() throws Exception {
+    final CSVFormat format = CSVFormat.DEFAULT.withQuoteMode(QuoteMode.MINIMAL)
+        .withHeader(applicationConfig.getCsvFields());
+    List<String> stringList = new ArrayList<>();
+    InputStreamResource fileInputStream = null;
+
+    try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+        CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);) {
+      csvPrinter.printRecord(stringList);
+      fileInputStream = new InputStreamResource(new ByteArrayInputStream(out.toByteArray()));
+    }
+
+    log.info("Inside  testcase ", fileInputStream);
+
+    this.mockMvc.perform(get("/abnamro/getDailyReport")).andExpect(status().is5xxServerError());
+
+  }
+
 
 }
