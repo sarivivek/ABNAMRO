@@ -11,7 +11,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
 import org.junit.Before;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -82,7 +82,7 @@ public class DailySummaryReportServiceImplTest extends AbnamroApplicationTests {
 
     log.info("Inside  testcase ", fileInputStream);
 
-    this.mockMvc.perform(get("/abnamro/getDailyReport")).andExpect(status().is5xxServerError());
+    this.mockMvc.perform(get("/abnamro/getDailyRepo")).andExpect(status().is4xxClientError());
 
   }
 
